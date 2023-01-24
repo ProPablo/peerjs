@@ -155,6 +155,7 @@
 		"watch": "parcel watch",
 		"build": "rm -rf dist && parcel build",
 		"prepublishOnly": "npm run build",
+		"prepare": "npm run build",
 		"test": "mocha -r ts-node/register -r jsdom-global/register test/**/*.ts",
 		"format": "prettier --write .",
 		"semantic-release": "semantic-release"
