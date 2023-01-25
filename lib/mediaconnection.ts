@@ -74,7 +74,7 @@ export class MediaConnection extends BaseConnection<MediaConnectionEvents> {
 				this._negotiator.handleCandidate(payload.candidate);
 				break;
 			default:
-				logger.warn(`Unrecognized message type:${type} from peer:${this.peer}`);
+				logger.warn(`Unrecognized message type:${type} from peer:${this.peerName}`);
 				break;
 		}
 	}
@@ -98,7 +98,7 @@ export class MediaConnection extends BaseConnection<MediaConnectionEvents> {
 			_stream: stream,
 		});
 		// Retrieve lost messages stored because PeerConnection not set up.
-		const messages = this.provider._getMessages(this.connectionId);
+		const messages = this.peer._getMessages(this.connectionId);
 
 		for (let message of messages) {
 			this.handleMessage(message);
@@ -121,10 +121,10 @@ export class MediaConnection extends BaseConnection<MediaConnectionEvents> {
 		this._localStream = null;
 		this._remoteStream = null;
 
-		if (this.provider) {
-			this.provider._removeConnection(this);
+		if (this.peer) {
+			this.peer._removeConnection(this);
 
-			this.provider = null;
+			this.peer = null;
 		}
 
 		if (this.options && this.options._stream) {

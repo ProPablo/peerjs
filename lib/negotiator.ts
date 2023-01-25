@@ -51,7 +51,7 @@ export class Negotiator<
 		logger.log("Creating RTCPeerConnection.");
 
 		const peerConnection = new RTCPeerConnection(
-			this.connection.provider.options.config,
+			this.connection.peer.options.config,
 		);
 
 		this._setupListeners(peerConnection);
@@ -61,10 +61,10 @@ export class Negotiator<
 
 	/** Set up various WebRTC listeners. */
 	private _setupListeners(peerConnection: RTCPeerConnection) {
-		const peerId = this.connection.peer;
+		const peerId = this.connection.peerName;
 		const connectionId = this.connection.connectionId;
 		const connectionType = this.connection.type;
-		const provider = this.connection.provider;
+		const provider = this.connection.peer;
 
 		// ICE CANDIDATES.
 		logger.log("Listening for ICE candidates.");
@@ -157,7 +157,7 @@ export class Negotiator<
 	}
 
 	cleanup(): void {
-		logger.log("Cleaning up PeerConnection to " + this.connection.peer);
+		logger.log("Cleaning up PeerConnection to " + this.connection.peerName);
 
 		const peerConnection = this.connection.peerConnection;
 
@@ -194,7 +194,7 @@ export class Negotiator<
 
 	private async _makeOffer(): Promise<void> {
 		const peerConnection = this.connection.peerConnection;
-		const provider = this.connection.provider;
+		const provider = this.connection.peer;
 
 		try {
 			const offer = await peerConnection.createOffer(
@@ -217,7 +217,7 @@ export class Negotiator<
 				logger.log(
 					"Set localDescription:",
 					offer,
-					`for:${this.connection.peer}`,
+					`for:${this.connection.peerName}`,
 				);
 
 				let payload: any = {
@@ -242,7 +242,7 @@ export class Negotiator<
 				provider.socket.send({
 					type: ServerMessageType.Offer,
 					payload,
-					dst: this.connection.peer,
+					dst: this.connection.peerName,
 				});
 			} catch (err) {
 				// TODO: investigate why _makeOffer is being called from the answer
@@ -262,7 +262,7 @@ export class Negotiator<
 
 	private async _makeAnswer(): Promise<void> {
 		const peerConnection = this.connection.peerConnection;
-		const provider = this.connection.provider;
+		const provider = this.connection.peer;
 
 		try {
 			const answer = await peerConnection.createAnswer();
@@ -282,7 +282,7 @@ export class Negotiator<
 				logger.log(
 					`Set localDescription:`,
 					answer,
-					`for:${this.connection.peer}`,
+					`for:${this.connection.peerName}`,
 				);
 
 				provider.socket.send({
@@ -293,7 +293,7 @@ export class Negotiator<
 						connectionId: this.connection.connectionId,
 						browser: util.browser,
 					},
-					dst: this.connection.peer,
+					dst: this.connection.peerName,
 				});
 			} catch (err) {
 				provider.emitError(PeerErrorType.WebRTC, err);
@@ -309,7 +309,7 @@ export class Negotiator<
 	async handleSDP(type: string, sdp: any): Promise<void> {
 		sdp = new RTCSessionDescription(sdp);
 		const peerConnection = this.connection.peerConnection;
-		const provider = this.connection.provider;
+		const provider = this.connection.peer;
 
 		logger.log("Setting remote description", sdp);
 
@@ -317,7 +317,7 @@ export class Negotiator<
 
 		try {
 			await peerConnection.setRemoteDescription(sdp);
-			logger.log(`Set remoteDescription:${type} for:${this.connection.peer}`);
+			logger.log(`Set remoteDescription:${type} for:${this.connection.peerName}`);
 			if (type === "OFFER") {
 				await self._makeAnswer();
 			}
@@ -335,7 +335,7 @@ export class Negotiator<
 		const sdpMLineIndex = ice.sdpMLineIndex;
 		const sdpMid = ice.sdpMid;
 		const peerConnection = this.connection.peerConnection;
-		const provider = this.connection.provider;
+		const provider = this.connection.peer;
 
 		try {
 			await peerConnection.addIceCandidate(
@@ -345,7 +345,7 @@ export class Negotiator<
 					candidate: candidate,
 				}),
 			);
-			logger.log(`Added ICE candidate for:${this.connection.peer}`);
+			logger.log(`Added ICE candidate for:${this.connection.peerName}`);
 		} catch (err) {
 			provider.emitError(PeerErrorType.WebRTC, err);
 			logger.log("Failed to handleCandidate, ", err);

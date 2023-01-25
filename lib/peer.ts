@@ -489,7 +489,7 @@ export class Peer extends EventEmitter<PeerEvents> {
 
 	//TODO should be private
 	_removeConnection(connection: DataConnection | MediaConnection): void {
-		const connections = this._connections.get(connection.peer);
+		const connections = this._connections.get(connection.peerName);
 
 		if (connections) {
 			const index = connections.indexOf(connection);

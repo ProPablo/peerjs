@@ -29,8 +29,8 @@ export abstract class BaseConnection<
 	}
 
 	constructor(
-		readonly peer: string,
-		public provider: Peer,
+		readonly peerName: string,
+		public peer: Peer,
 		readonly options: any,
 	) {
 		super();

@@ -73,7 +73,7 @@ describe("Peer", function () {
 
 			expect(mediaConnection.connectionId).to.be.a("string");
 			expect(mediaConnection.type).to.eq(ConnectionType.Media);
-			expect(mediaConnection.peer).to.eq("2");
+			expect(mediaConnection.peerName).to.eq("2");
 			expect(mediaConnection.options).to.include(mediaOptions);
 			expect(mediaConnection.metadata).to.deep.eq(mediaOptions.metadata);
 			expect(mediaConnection.peerConnection.getSenders()[0].track.id).to.eq(

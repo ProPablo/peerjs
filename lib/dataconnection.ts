@@ -116,7 +116,7 @@ export class DataConnection
 		};
 
 		this.dataChannel.onclose = () => {
-			logger.log(`DC#${this.connectionId} dc closed for:`, this.peer);
+			logger.log(`DC#${this.connectionId} dc closed for:`, this.peerName);
 			this.close();
 		};
 	}
@@ -206,10 +206,10 @@ export class DataConnection
 			this._negotiator = null;
 		}
 
-		if (this.provider) {
-			this.provider._removeConnection(this);
+		if (this.peer) {
+			this.peer._removeConnection(this);
 
-			this.provider = null;
+			this.peer = null;
 		}
 
 		if (this.dataChannel) {
@@ -351,7 +351,7 @@ export class DataConnection
 					"Unrecognized message type:",
 					message.type,
 					"from peer:",
-					this.peer,
+					this.peerName,
 				);
 				break;
 		}
