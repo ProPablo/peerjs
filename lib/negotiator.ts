@@ -6,6 +6,12 @@ import { ConnectionType, PeerErrorType, ServerMessageType } from "./enums";
 import { BaseConnection, BaseConnectionEvents } from "./baseconnection";
 import { ValidEventTypes } from "eventemitter3";
 
+
+export interface CustomOptions {
+	reliable: boolean,
+}
+
+
 /**
  * Manages all negotiations between Peers.
  */

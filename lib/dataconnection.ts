@@ -43,7 +43,7 @@ export class DataConnection
 	private _buffer: any[] = [];
 	private _bufferSize = 0;
 	private _buffering = false;
-	private _chunkedData: {
+	public _chunkedData: {
 		[id: number]: {
 			data: Blob[];
 			count: number;
@@ -170,6 +170,7 @@ export class DataConnection
 		total: number;
 		data: Blob;
 	}): void {
+		logger.log("Found chunked data", data, this._chunkedData);
 		const id = data.__peerData;
 		const chunkInfo = this._chunkedData[id] || {
 			data: [],
