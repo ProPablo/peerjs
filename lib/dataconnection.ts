@@ -334,10 +334,10 @@ export class DataConnection
 	private _sendChunks(blob: Blob): void {
 		const blobs = util.chunk(blob);
 		logger.log(`DC#${this.connectionId} Try to send ${blobs.length} chunks...`);
-		logger.log(`Hey man`);
 
 		for (let blob of blobs) {
 			logger.log(`DC#${this.connectionId}: Enqueing new chunk to buffer ${blob}`);
+			logger.log(blob);
 			this.send(blob, true);
 		}
 	}
