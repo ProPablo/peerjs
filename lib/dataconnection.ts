@@ -24,8 +24,7 @@ type DataConnectionEvents = {
  */
 export class DataConnection
 	extends BaseConnection<DataConnectionEvents>
-	implements IDataConnection
-{
+	implements IDataConnection {
 	private static readonly ID_PREFIX = "dc_";
 	private static readonly MAX_BUFFERED_AMOUNT = 8 * 1024 * 1024;
 
@@ -40,9 +39,10 @@ export class DataConnection
 		return ConnectionType.Data;
 	}
 
-	private _buffer: any[] = [];
+	public _buffer: any[] = [];
 	private _bufferSize = 0;
 	private _buffering = false;
+	// Used to recreate chunk RX side
 	public _chunkedData: {
 		[id: number]: {
 			data: Blob[];
@@ -296,6 +296,9 @@ export class DataConnection
 		}
 
 		try {
+			//TODO: also update here what the status is for a whole chunk being sent
+			// Send an event for that
+			logger.log(`DC#${this.connectionId}: Sending message ${msg}`);
 			this.dataChannel.send(msg);
 		} catch (e) {
 			logger.error(`DC#:${this.connectionId} Error when sending:`, e);
@@ -309,7 +312,7 @@ export class DataConnection
 		return true;
 	}
 
-	// Try to send the first message in the buffer.
+	// Try to send the first message in the buffer and removes it if successful
 	private _tryBuffer(): void {
 		if (!this.open) {
 			return;
@@ -333,6 +336,7 @@ export class DataConnection
 		logger.log(`DC#${this.connectionId} Try to send ${blobs.length} chunks...`);
 
 		for (let blob of blobs) {
+			logger.log(`DC#${this.connectionId}: Enqueing new chunk to buffer ${blob}`);
 			this.send(blob, true);
 		}
 	}
