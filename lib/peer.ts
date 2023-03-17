@@ -1,5 +1,5 @@
 import { EventEmitter } from "eventemitter3";
-import { util } from "./util";
+import { Util, util } from "./util";
 import logger, { LogLevel } from "./logger";
 import { Socket } from "./socket";
 import { MediaConnection } from "./mediaconnection";
@@ -67,6 +67,7 @@ export class Peer extends EventEmitter<PeerEvents> {
 	private readonly _options: PeerOptions;
 	private readonly _api: API;
 	private readonly _socket: Socket;
+	private readonly _util: Util;
 
 	private _id: string | null = null;
 	private _lastServerId: string | null = null;
@@ -149,6 +150,7 @@ export class Peer extends EventEmitter<PeerEvents> {
 	constructor(id?: string | PeerOptions, options?: PeerOptions) {
 		super();
 
+		this._util = util;
 		let userId: string | undefined;
 
 		// Deal with overloading

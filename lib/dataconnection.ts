@@ -19,6 +19,17 @@ type DataConnectionEvents = {
 	open: () => void;
 };
 
+export interface BlobMessage {
+	data: Blob,
+	meta: any,
+
+}
+export interface ArrayBuffMessage {
+	data: ArrayBuffer,
+	meta: any,
+}
+export type Message = string | BlobMessage | ArrayBuffMessage;
+
 /**
  * Wraps a DataChannel between two Peers.
  */
@@ -40,7 +51,7 @@ export class DataConnection
 	}
 
 	public _buffer: any[] = [];
-	private _bufferSize = 0;
+	// private _bufferSize = 0;
 	private _buffering = false;
 	// Used to recreate chunk RX side
 	public _chunkedData: {
@@ -59,7 +70,7 @@ export class DataConnection
 	}
 
 	get bufferSize(): number {
-		return this._bufferSize;
+		return this._buffer.length;
 	}
 
 	constructor(peerId: string, provider: Peer, options: any) {
@@ -105,7 +116,9 @@ export class DataConnection
 		}
 
 		this.dataChannel.onopen = () => {
-			logger.log(`DC#${this.connectionId} dc connection success`);
+			logger.log(`DC#${this.connectionId} dc connection success, util supports: `);
+			logger.log(util.supports);
+
 			this._open = true;
 			this.emit("open");
 		};
@@ -199,7 +212,7 @@ export class DataConnection
 	/** Allows user to close connection. */
 	close(): void {
 		this._buffer = [];
-		this._bufferSize = 0;
+		// this._bufferSize = 0;
 		this._chunkedData = {};
 
 		if (this._negotiator) {
@@ -249,12 +262,13 @@ export class DataConnection
 
 		if (this.serialization === SerializationType.JSON) {
 			this._bufferedSend(this.stringify(data));
-		} else if (
+		}
+		// Defer this check to happen on trySend
+		else if (
 			this.serialization === SerializationType.Binary ||
 			this.serialization === SerializationType.BinaryUTF8
 		) {
 			const blob = util.pack(data);
-
 			if (!chunked && blob.size > util.chunkedMTU) {
 				this._sendChunks(blob);
 				return;
@@ -272,10 +286,10 @@ export class DataConnection
 		}
 	}
 
-	private _bufferedSend(msg: any): void {
+	private _bufferedSend(msg: string | ArrayBuffer | Blob): void {
 		if (this._buffering || !this._trySend(msg)) {
 			this._buffer.push(msg);
-			this._bufferSize = this._buffer.length;
+			// this._bufferSize = this._buffer.length;
 		}
 	}
 
@@ -299,6 +313,10 @@ export class DataConnection
 			//TODO: also update here what the status is for a whole chunk being sent
 			// Send an event for that
 			logger.log(`DC#${this.connectionId}: Sending message ${msg}`);
+			if (typeof msg != "string" && ) {
+				logger.log(`DC#${this.connectionId}: In chunked object `);
+
+			}
 			this.dataChannel.send(msg);
 		} catch (e) {
 			logger.error(`DC#:${this.connectionId} Error when sending:`, e);
@@ -326,7 +344,7 @@ export class DataConnection
 
 		if (this._trySend(msg)) {
 			this._buffer.shift();
-			this._bufferSize = this._buffer.length;
+			// this._bufferSize = this._buffer.length;
 			this._tryBuffer();
 		}
 	}
@@ -341,6 +359,7 @@ export class DataConnection
 			this.send(blob, true);
 		}
 	}
+	private
 
 	handleMessage(message: ServerMessage): void {
 		const payload = message.payload;

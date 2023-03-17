@@ -27,7 +27,7 @@ const DEFAULT_CONFIG = {
 	sdpSemantics: "unified-plan",
 };
 
-class Util {
+export class Util {
 	noop(): void {}
 
 	readonly CLOUD_HOST = "0.peerjs.com";
@@ -171,4 +171,5 @@ class Util {
 		return location.protocol === "https:";
 	}
 }
+// Single instance means supports only gets evaluated once
 export const util = new Util();
