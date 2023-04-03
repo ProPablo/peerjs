@@ -313,9 +313,8 @@ export class DataConnection
 			//TODO: also update here what the status is for a whole chunk being sent
 			// Send an event for that
 			logger.log(`DC#${this.connectionId}: Sending message ${msg}`);
-			if (typeof msg != "string" && ) {
+			if (typeof msg != "string" && msg.meta != undefined) {
 				logger.log(`DC#${this.connectionId}: In chunked object `);
-
 			}
 			this.dataChannel.send(msg);
 		} catch (e) {
