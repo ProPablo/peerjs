@@ -67,7 +67,7 @@ export class Peer extends EventEmitter<PeerEvents> {
 	private readonly _options: PeerOptions;
 	private readonly _api: API;
 	private readonly _socket: Socket;
-	private readonly _util: Util;
+	public readonly _util: Util;
 
 	private _id: string | null = null;
 	private _lastServerId: string | null = null;

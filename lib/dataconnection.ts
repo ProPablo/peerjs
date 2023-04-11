@@ -12,22 +12,40 @@ type DataConnectionEvents = {
 	/**
 	 * Emitted when data is received from the remote peer.
 	 */
+	// TODO: Fix type
 	data: (data: unknown) => void;
 	/**
 	 * Emitted when the connection is established and ready-to-use.
 	 */
 	open: () => void;
 };
+export interface ProgressReport {
+	// Integer
+	id: number;
+	// Float (0-1)
+	progress: number;
+}
+
+export interface MessageMeta {
+	type: "chunk" | "array" | "string";
+	chunkData?: {
+		count: number;
+		total: number;
+		chunkId: number;
+	}
+}
 
 export interface BlobMessage {
 	data: Blob,
-	meta: any,
+	meta: MessageMeta,
 
 }
+
 export interface ArrayBuffMessage {
 	data: ArrayBuffer,
-	meta: any,
+	meta: MessageMeta,
 }
+
 export type Message = string | BlobMessage | ArrayBuffMessage;
 
 /**
@@ -135,11 +153,8 @@ export class DataConnection
 	}
 
 	// Handles a DataChannel message.
-	private _handleDataMessage({
-		data,
-	}: {
-		data: Blob | ArrayBuffer | string;
-	}): void {
+	private _handleDataMessage(input: { data: Blob | ArrayBuffer | string; }): void {
+		const { data, } = input;
 		const datatype = data.constructor;
 
 		const isBinarySerialization =
@@ -277,6 +292,7 @@ export class DataConnection
 			if (!util.supports.binaryBlob) {
 				// We only do this if we really need to (e.g. blobs are not supported),
 				// because this conversion is costly.
+				// Happens very often in chrome
 				this._encodingQueue.enque(blob);
 			} else {
 				this._bufferedSend(blob);
