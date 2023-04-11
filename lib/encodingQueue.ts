@@ -1,20 +1,30 @@
 import { EventEmitter } from "eventemitter3";
+import { ArrayBuffMessage, BlobMessage } from "./dataconnection";
 import logger from "./logger";
 
-export class EncodingQueue extends EventEmitter {
+type EncodingQueueEvents = {
+	done: (msg: ArrayBuffMessage) => void;
+	error: (err: any) => void;
+}
+
+
+// Converts from blob to ArrayBuffer as a contingency
+export class EncodingQueue extends EventEmitter<EncodingQueueEvents> {
 	readonly fileReader: FileReader = new FileReader();
 
-	private _queue: Blob[] = [];
-	private _processing: boolean = false;
+	private _queue: BlobMessage[] = [];
+	// private _processing: boolean = false;
+	private _currentBlob: BlobMessage | null = null;
 
 	constructor() {
 		super();
 
 		this.fileReader.onload = (evt) => {
-			this._processing = false;
+			// this._processing = false;
 
 			if (evt.target) {
-				this.emit("done", evt.target.result as ArrayBuffer);
+				// this.emit("done", evt.target.result as ArrayBuffer);
+				// this.emit("done", evt.target.result as ArrayBuffer);
 			}
 
 			this.doNextTask();
@@ -22,26 +32,28 @@ export class EncodingQueue extends EventEmitter {
 
 		this.fileReader.onerror = (evt) => {
 			logger.error(`EncodingQueue error:`, evt);
-			this._processing = false;
+			// this._processing = false;
 			this.destroy();
 			this.emit("error", evt);
 		};
 	}
 
-	get queue(): Blob[] {
-		return this._queue;
-	}
+	// Since this is a rpivate variable, making a get alias here is uncessesary 
+	// get queue(): Blob[] {
+	// 	return this._queue;
+	// }
 
 	get size(): number {
-		return this.queue.length;
+		return this._queue.length;
 	}
 
 	get processing(): boolean {
-		return this._processing;
+		// return this._processing;
+		return this._currentBlob != null;
 	}
 
-	enque(blob: Blob): void {
-		this.queue.push(blob);
+	enque(blob: BlobMessage): void {
+		this._queue.push(blob);
 
 		if (this.processing) return;
 
