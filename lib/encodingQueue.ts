@@ -3,7 +3,8 @@ import { ArrayBuffMessage, BlobMessage } from "./dataconnection";
 import logger from "./logger";
 
 type EncodingQueueEvents = {
-	done: (msg: ArrayBuffMessage) => void;
+	// done: (msg: ArrayBuffMessage) => void;
+	done: (msg: any) => void;
 	error: (err: any) => void;
 }
 
@@ -13,18 +14,16 @@ export class EncodingQueue extends EventEmitter<EncodingQueueEvents> {
 	readonly fileReader: FileReader = new FileReader();
 
 	private _queue: BlobMessage[] = [];
-	// private _processing: boolean = false;
 	private _currentBlob: BlobMessage | null = null;
 
 	constructor() {
 		super();
 
 		this.fileReader.onload = (evt) => {
-			// this._processing = false;
+			this._currentBlob = null;
 
 			if (evt.target) {
-				// this.emit("done", evt.target.result as ArrayBuffer);
-				// this.emit("done", evt.target.result as ArrayBuffer);
+				this.emit("done", evt.target.result as ArrayBuffer);
 			}
 
 			this.doNextTask();
@@ -32,7 +31,7 @@ export class EncodingQueue extends EventEmitter<EncodingQueueEvents> {
 
 		this.fileReader.onerror = (evt) => {
 			logger.error(`EncodingQueue error:`, evt);
-			// this._processing = false;
+			this._currentBlob = null;
 			this.destroy();
 			this.emit("error", evt);
 		};
@@ -48,7 +47,6 @@ export class EncodingQueue extends EventEmitter<EncodingQueueEvents> {
 	}
 
 	get processing(): boolean {
-		// return this._processing;
 		return this._currentBlob != null;
 	}
 
@@ -69,8 +67,10 @@ export class EncodingQueue extends EventEmitter<EncodingQueueEvents> {
 		if (this.size === 0) return;
 		if (this.processing) return;
 
-		this._processing = true;
+		// TODO: fix types and actually read in the proper thing
+		const newBuff = this._queue.shift() as any;
+		this._currentBlob = newBuff;
 
-		this.fileReader.readAsArrayBuffer(this.queue.shift());
+		this.fileReader.readAsArrayBuffer(newBuff);
 	}
 }
