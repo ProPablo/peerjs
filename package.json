@@ -1,6 +1,6 @@
 {
 	"name": "peerjs",
-	"version": "1.5.0",
+	"version": "1.5.1",
 	"keywords": [
 		"peerjs",
 		"webrtc",
@@ -177,6 +177,7 @@
 		"watch": "parcel watch",
 		"build": "npx rimraf dist && parcel build",
 		"prepublishOnly": "npm run build",
+		"prepare": "npm run build",
 		"test": "jest",
 		"test:watch": "jest --watch",
 		"coverage": "jest --coverage --collectCoverageFrom=\"./lib/**\"",
