@@ -68,6 +68,7 @@ export class BufferedNotifyConnection extends DataConnection {
         chunkInfo.data[data.n] = new Uint8Array(data.data);
         chunkInfo.count++;
         this._chunkedData[id] = chunkInfo;
+        // TODO: Send out a receive notification event here
 
         if (chunkInfo.total === chunkInfo.count) {
             // Clean up before making the recursive call to `_handleDataMessage`.
